@@ -1,0 +1,34 @@
+{
+    "name": "laravel-admin-ext/action",
+    "description": "description...",
+    "type": "library",
+    "keywords": ["laravel-admin", "extension"],
+    "homepage": "https://github.com/laravel-admin-ext/action",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "TradeMarkers LLC",
+            "email": "rexter@trademarkers.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "encore/laravel-admin": "~1.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Encore\\Action\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Encore\\Action\\ActionServiceProvider"
+            ]
+
+        }
+    }
+}
