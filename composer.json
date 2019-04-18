@@ -1,9 +1,9 @@
 {
-    "name": "laravel-admin-ext/action",
-    "description": "description...",
+    "name": "alldeads/actioncode",
+    "description": "Action Code for trademarkers",
     "type": "library",
     "keywords": ["laravel-admin", "extension"],
-    "homepage": "https://github.com/laravel-admin-ext/action",
+    "homepage": "https://github.com/alldeads/actioncode",
     "license": "MIT",
     "authors": [
         {
