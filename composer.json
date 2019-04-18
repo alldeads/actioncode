@@ -23,6 +23,12 @@
             "Encore\\Action\\": "src/"
         }
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "app/Admin/extensions/laravel-admin-ext/phpinfo"
+        }
+    ],
     "extra": {
         "laravel": {
             "providers": [
