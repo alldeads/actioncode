@@ -19,7 +19,7 @@ use Carbon\Carbon;
 class ActionController extends Controller
 {
     public function index(Content $content)
-    {	
+    {   
         $campaigns = ActionCodeCampaign::all();
         $arr = [];
 
@@ -31,15 +31,17 @@ class ActionController extends Controller
 
     public function upload( Request $request, Content $content )
     {
-    	if ( $request->action_file ) {
+        ini_set('memory_limit','1024M');
 
-    		$validatedData = $request->validate( [
+        if ( $request->action_file ) {
+
+            $validatedData = $request->validate( [
                 'action_file' => 'required|file',
             ] );
 
             if ( $request->action_file->getClientOriginalExtension() !== "csv" ) {
 
-            	return back()->withErrors(['action_file' => "The file must be the extension of csv."]);
+                return back()->withErrors(['action_file' => "The file must be the extension of csv."]);
             }
 
             $filename = md5( time() ) . '.' . $request->action_file->getClientOriginalExtension();
@@ -48,7 +50,7 @@ class ActionController extends Controller
 
             if ( $success === true ) {
 
-            	return back()->withErrors(['action_file' => "Duplicate file has been uploaded."]);
+                return back()->withErrors(['action_file' => "Duplicate file has been uploaded."]);
             }
 
             $request->action_file->move( public_path('uploads/actions'), $filename );
@@ -70,12 +72,12 @@ class ActionController extends Controller
             $count    = 0;
             $success  = 0; //10 is success, if not fail
             $arr      = array();
-
+            // $a        = 74750;
             $last_action_code = ActionCode::max('id');
 
-            foreach ( $csv as $data ) {
+            set_time_limit(10500);
 
-            	// dd($data);
+            foreach ( $csv as $data ) {
                 
                 if ( $count == 0 ) {
 
@@ -94,28 +96,82 @@ class ActionController extends Controller
                     } 
 
                     $cm = ActionCodeCampaign::create( [
-		                'name'      => $request->action_file->getClientOriginalName(),
-		                'file_name' => $filename,
-		                'count'     => $count 
-		            ] );
+                        'name'      => $request->action_file->getClientOriginalName(),
+                        'file_name' => $filename,
+                        'count'     => $count 
+                    ] );
 
                 } else {
                     // dd($data);
-                	$last_action_code++;
+                    $last_action_code++;
 
-            		$data[0] = Utils::case_gen( $last_action_code );
+                    $action_code = Utils::case_gen( $last_action_code );
 
-                	$code = ActionCode::create( [
+                    $data[0] = $action_code;
 
-                		'case_number'             => Utils::case_gen( $last_action_code ),
-                		'action_code_type_id'     => $request->type != 7 ? 8 : 7,
-                		'action_code_campaign_id' => $cm->id,
-                	] );
+                    $code = ActionCode::create( [
 
-                	$case = ActionCodeCase::create( [
-                		'action_code_id'          => $code->id,
-                		'action_code_campaign_id' => $cm->id,
-                		'number'                  => str_replace("'", "", $data[36]),
+                        'case_number'             => $action_code,
+                        'action_code_type_id'     => $request->type != 7 ? 8 : 7,
+                        'action_code_campaign_id' => $cm->id,
+                    ] );
+
+                    if ( $data[28] ) {
+
+                        if ( $data[28] == 'NULL' ) {
+
+                            $data[28] = '01/01/70';
+
+                        }
+
+                    } else {
+
+                        $data[28] = '01/01/70';
+                    }
+
+                    if ( $data[13] ) {
+
+                        if ( $data[13] == 'NULL' ) {
+
+                            $data[13] = '01/01/70';
+
+                        }
+
+                    } else {
+
+                        $data[13] = '01/01/70';
+                    }
+
+                    if ( $data[15] ) {
+
+                        if ( $data[15] == 'NULL' ) {
+
+                            $data[15] = '01/01/70 12:12';
+
+                        }
+
+                    } else {
+
+                        $data[15] = '01/01/70 12:12';
+                    }
+
+                    if ( $data[16] ) {
+
+                        if ( $data[16] == 'NULL' ) {
+
+                            $data[16] = '01/01/70';
+
+                        }
+
+                    } else {
+
+                        $data[16] = '01/01/70';
+                    }
+
+                    $case = ActionCodeCase::create( [
+                        'action_code_id'          => $code->id,
+                        'action_code_campaign_id' => $cm->id,
+                        'number'                  => str_replace("'", "", $data[36]),
                         'trademark'               => $data[31],
                         'tm_filing_date'          => Carbon::createFromFormat('m/d/y', $data[28]),
                         'tm_holder'               => $data[30],
@@ -123,7 +179,7 @@ class ActionController extends Controller
                         'mark_current_status_code'=> $data[12],
                         'mark_current_status_date'=> Carbon::createFromFormat('m/d/y', $data[13]),
                         'ref_processed_date'      => Carbon::createFromFormat('m/d/y H:i', $data[15]),
-                        'registration_date'       => Carbon::createFromFormat('m/d/y', $data[28]),
+                        'registration_date'       => Carbon::createFromFormat('m/d/y', $data[16]),
                         'address'                 => $data[1],
                         'city'                    => $data[4],
                         'city_of_registration'    => $data[8],
@@ -138,9 +194,9 @@ class ActionController extends Controller
                         'zip'                     => $data[6],
                         'country'                 => $data[2],
                         'country_code'            => $data[3],
-                	] );
-
-                	array_push( $arr , $data);
+                    ] );
+                    
+                    array_push( $arr , $data);
                 }
                 
                 $count++;
@@ -152,6 +208,6 @@ class ActionController extends Controller
                 ->header('Action Code')
                 ->description('View')
                 ->body( view('action::index', compact( 'arr', 'campaigns' )) );
-    	}
+        }
     }
 }

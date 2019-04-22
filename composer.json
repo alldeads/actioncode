@@ -26,7 +26,7 @@
     "repositories": [
         {
             "type": "path",
-            "url": "app/Admin/extensions/laravel-admin-ext/phpinfo"
+            "url": "app/Admin/extensions/laravel-admin-ext/action"
         }
     ],
     "extra": {
